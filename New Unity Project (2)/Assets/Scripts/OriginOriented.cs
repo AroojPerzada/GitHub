@@ -8,7 +8,8 @@ Confidential and Proprietary - Protected under copyright and other laws.
 
 using UnityEngine;
 using Vuforia;
-
+using System.Collections.Generic;
+using UnityEngine.UI;
 /// <summary>
 ///     A custom handler that implements the ITrackableEventHandler interface.
 /// </summary>
@@ -18,6 +19,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 	protected TrackableBehaviour mTrackableBehaviour;
 	public GameObject cube;
+	private IEnumerable<TrackableBehaviour> activeTrackables;
 
 	#endregion // PRIVATE_MEMBER_VARIABLES
 
@@ -62,6 +64,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			// Call OnTrackingLost() to hide the augmentations
 			OnTrackingLost();
 		}
+		Update ();
 	}
 
 	#endregion // PUBLIC_METHODS
@@ -90,26 +93,43 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 		GameObject rectangle = GameObject.FindGameObjectWithTag ("Rectangle");
 		GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
-		GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
+	//	GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
 
-		if (rombus) {
-			cube.transform.position = rectangle.transform.position;
-			Debug.Log ("Rectangle position ro: " + rectangle.transform.position + " " + cube.transform.position);
-		} else if (GameObject.FindGameObjectWithTag ("Rombus")) {
-			temp.x = rombus.transform.position.x * 0.02f;
-			temp.y = rombus.transform.position.y;
-			temp.z = rombus.transform.position.z;
-			cube.transform.position = rombus.transform.position;
-			Debug.Log ("Rombus: " + temp + " " + cube.transform.position);
-		} else if (rectangle && rombus) {
-			cube.transform.position = rectangle.transform.position;
-			Debug.Log ("Rectangle and Rombus found: " + rectangle.transform.position + " " + cube.transform.position);
+			if (!cube.activeSelf) {
+				Debug.Log ("if cube is not active");
+				cube.SetActive (true);
+			}
+			if (mTrackableBehaviour.TrackableName == "Rectangle") {
+				cube.transform.position = rectangle.transform.position;
+				Debug.Log ("Rectangle position: " + rectangle.transform.position + " " + cube.transform.position);
+			} else if (mTrackableBehaviour.TrackableName == "Rombus") {
+				temp.x = rombus.transform.position.x * 3.0f;
+				temp.y = rombus.transform.position.y;
+				temp.z = rombus.transform.position.z;
+				cube.transform.position = temp;
+				Debug.Log ("Rombus: " + rombus.transform.position + " " + cube.transform.position);
+			} else if ((mTrackableBehaviour.TrackableName == "Rectangle") && (mTrackableBehaviour.TrackableName == "Rombus") == true) {
+				cube.transform.position = rectangle.transform.position;
+				Debug.Log ("Rectangle and Rombus found: " + rectangle.transform.position + " " + cube.transform.position);
+			} else {
+				Debug.Log ("All conditions are false");
+			}
+	} 
+
+	protected void Update() {
+		StateManager sm = TrackerManager.Instance.GetStateManager ();
+		activeTrackables = sm.GetActiveTrackableBehaviours ();
+		Debug.Log ("List of trackables currently active tracked");
+		foreach (TrackableBehaviour tb in activeTrackables) {
+			Debug.Log ("Trackable: " + tb.TrackableName);
 		}
 	}
 
 
-	protected virtual void OnTrackingLost()
+	protected  void OnTrackingLost()
 	{
+		Debug.Log ("Tracking lost of " + mTrackableBehaviour.TrackableName);
+
 		var rendererComponents = GetComponentsInChildren<Renderer>(true);
 		var colliderComponents = GetComponentsInChildren<Collider>(true);
 		var canvasComponents = GetComponentsInChildren<Canvas>(true);
@@ -125,7 +145,13 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 		// Disable canvas':
 		foreach (var component in canvasComponents)
 			component.enabled = false;
-		
+
+		if (mTrackableBehaviour.TrackableName == "Rombus") {
+			cube.SetActive (false);
+		}
+		 else if (mTrackableBehaviour.TrackableName == "Rectangle") {
+			cube.SetActive (false);
+		}
 	}
 
 	#endregion // PRIVATE_METHODS

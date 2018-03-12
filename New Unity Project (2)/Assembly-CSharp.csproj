@@ -53,6 +53,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\OriginOriented.cs" />
      <Compile Include="Assets\Scripts\PolygonField.cs" />
+     <Compile Include="Assets\Scripts\StaticValues.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultInitializationErrorHandler.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultTrackableEventHandler.cs" />
