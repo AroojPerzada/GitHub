@@ -20,6 +20,9 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 	protected TrackableBehaviour mTrackableBehaviour;
 	public GameObject cube;
 	private IEnumerable<TrackableBehaviour> activeTrackables;
+	private int Count;
+	public bool rec;
+	public bool romb;
 
 	#endregion // PRIVATE_MEMBER_VARIABLES
 
@@ -27,6 +30,9 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 	protected virtual void Start()
 	{
+		rec = false;
+		romb = false;
+		Count = 20;
 		mTrackableBehaviour = GetComponent<TrackableBehaviour>();
 		if (mTrackableBehaviour)
 			mTrackableBehaviour.RegisterTrackableEventHandler(this);
@@ -40,6 +46,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 	///     Implementation of the ITrackableEventHandler function called when the
 	///     tracking state changes.
 	/// </summary>
+
 	public void OnTrackableStateChanged(
 		TrackableBehaviour.Status previousStatus,
 		TrackableBehaviour.Status newStatus)
@@ -49,12 +56,27 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
 		{
 			Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " found");
+			if (mTrackableBehaviour.TrackableName == "Rectangle") {
+				rec = true;
+				romb = false;
+			} else if(mTrackableBehaviour.TrackableName == "Rombus") {
+				romb = true;
+				if (rec == true) {
+					romb = false;
+				}
+			}
 			OnTrackingFound();
 		}
 		else if (previousStatus == TrackableBehaviour.Status.TRACKED &&
 			newStatus == TrackableBehaviour.Status.NOT_FOUND)
 		{
 			Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " lost");
+			if (mTrackableBehaviour.TrackableName == "Rectangle") {
+				rec = false;
+			}
+			if (mTrackableBehaviour.TrackableName == "Rombus") {
+				romb = false;
+			}
 			OnTrackingLost();
 		}
 		else
@@ -64,7 +86,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			// Call OnTrackingLost() to hide the augmentations
 			OnTrackingLost();
 		}
-		Update ();
+		//Update ();
 	}
 
 	#endregion // PUBLIC_METHODS
@@ -73,8 +95,27 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 	protected virtual void OnTrackingFound()
 	{
-		var rendererComponents = GetComponentsInChildren<Renderer>(true);
-		var colliderComponents = GetComponentsInChildren<Collider>(true);
+
+
+		GameObject rectangle = GameObject.FindGameObjectWithTag ("Rectangle");
+		GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
+		//	GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
+
+		if (mTrackableBehaviour.TrackableName == "Rectangle" && rec == true) {
+			cube.transform.position = new Vector3 (rectangle.transform.position.x, rectangle.transform.position.y, rectangle.transform.position.z);
+		} else if (mTrackableBehaviour.TrackableName == "Rombus" && romb == true) {
+			cube.SetActive (true);
+			cube.transform.position = new Vector3 (rombus.transform.position.x + 5, rombus.transform.position.y, rombus.transform.position.z);
+		} else {
+		}
+
+
+
+		//GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
+		//Debug.Log (rombus);
+		//cube.transform.position = new Vector3 (rombus.transform.position.x + 5, rombus.transform.position.y, rombus.transform.position.z);
+		/*var rendererComponents = GetComponentsInChildren<Renderer>(true);
+		/*var colliderComponents = GetComponentsInChildren<Collider>(true);
 		var canvasComponents = GetComponentsInChildren<Canvas>(true);
 
 		Vector3 temp = new Vector3 ();
@@ -90,45 +131,33 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 		// Enable canvas':
 		foreach (var component in canvasComponents)
 			component.enabled = true;
-
-		GameObject rectangle = GameObject.FindGameObjectWithTag ("Rectangle");
-		GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
-	//	GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
-
-			if (!cube.activeSelf) {
-				Debug.Log ("if cube is not active");
-				cube.SetActive (true);
-			}
-			if (mTrackableBehaviour.TrackableName == "Rectangle") {
-				cube.transform.position = rectangle.transform.position;
-				Debug.Log ("Rectangle position: " + rectangle.transform.position + " " + cube.transform.position);
-			} else if (mTrackableBehaviour.TrackableName == "Rombus") {
-				temp.x = rombus.transform.position.x * 3.0f;
-				temp.y = rombus.transform.position.y;
-				temp.z = rombus.transform.position.z;
-				cube.transform.position = temp;
-				Debug.Log ("Rombus: " + rombus.transform.position + " " + cube.transform.position);
-			} else if ((mTrackableBehaviour.TrackableName == "Rectangle") && (mTrackableBehaviour.TrackableName == "Rombus") == true) {
-				cube.transform.position = rectangle.transform.position;
-				Debug.Log ("Rectangle and Rombus found: " + rectangle.transform.position + " " + cube.transform.position);
-			} else {
-				Debug.Log ("All conditions are false");
-			}
-	} 
+*/
+	}
 
 	protected void Update() {
+
+
+		/*Debug.Log ("Start of Update Function");
 		StateManager sm = TrackerManager.Instance.GetStateManager ();
 		activeTrackables = sm.GetActiveTrackableBehaviours ();
 		Debug.Log ("List of trackables currently active tracked");
 		foreach (TrackableBehaviour tb in activeTrackables) {
-			Debug.Log ("Trackable: " + tb.TrackableName);
+			Debug.Log ("Trackable: " + tb.TrackableName);*/
+		
+		if (Count >= 0) {
+			Count = Count - 1;
+			if (Count == 0) {
+				Count = 20;
+				OnTrackingFound ();
+			}
 		}
+
 	}
 
 
 	protected  void OnTrackingLost()
 	{
-		Debug.Log ("Tracking lost of " + mTrackableBehaviour.TrackableName);
+		//Debug.Log ("Tracking lost of " + mTrackableBehaviour.TrackableName);
 
 		var rendererComponents = GetComponentsInChildren<Renderer>(true);
 		var colliderComponents = GetComponentsInChildren<Collider>(true);
@@ -147,11 +176,12 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			component.enabled = false;
 
 		if (mTrackableBehaviour.TrackableName == "Rombus") {
-			cube.SetActive (false);
+			romb = false;
 		}
-		 else if (mTrackableBehaviour.TrackableName == "Rectangle") {
-			cube.SetActive (false);
+		if (mTrackableBehaviour.TrackableName == "Rectangle") {
+			rec = false;
 		}
+		cube.SetActive (false);
 	}
 
 	#endregion // PRIVATE_METHODS
