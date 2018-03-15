@@ -59,7 +59,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			if (mTrackableBehaviour.TrackableName == "Rectangle") {
 				rec = true;
 				romb = false;
-			} else if(mTrackableBehaviour.TrackableName == "Rombus") {
+			} else if(mTrackableBehaviour.TrackableName == "Circle") {
 				romb = true;
 				if (rec == true) {
 					romb = false;
@@ -74,7 +74,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			if (mTrackableBehaviour.TrackableName == "Rectangle") {
 				rec = false;
 			}
-			if (mTrackableBehaviour.TrackableName == "Rombus") {
+			if (mTrackableBehaviour.TrackableName == "Circle") {
 				romb = false;
 			}
 			OnTrackingLost();
@@ -98,12 +98,12 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 
 		GameObject rectangle = GameObject.FindGameObjectWithTag ("Rectangle");
-		GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
+		GameObject rombus = GameObject.FindGameObjectWithTag ("Circle");
 		//	GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
 
 		if (mTrackableBehaviour.TrackableName == "Rectangle" && rec == true) {
 			cube.transform.position = new Vector3 (rectangle.transform.position.x, rectangle.transform.position.y, rectangle.transform.position.z);
-		} else if (mTrackableBehaviour.TrackableName == "Rombus" && romb == true) {
+		} else if (mTrackableBehaviour.TrackableName == "Circle" && romb == true) {
 			cube.SetActive (true);
 			cube.transform.position = new Vector3 (rombus.transform.position.x + 5, rombus.transform.position.y, rombus.transform.position.z);
 		} else {
@@ -175,7 +175,7 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 		foreach (var component in canvasComponents)
 			component.enabled = false;
 
-		if (mTrackableBehaviour.TrackableName == "Rombus") {
+		if (mTrackableBehaviour.TrackableName == "Circle") {
 			romb = false;
 		}
 		if (mTrackableBehaviour.TrackableName == "Rectangle") {

@@ -6,7 +6,7 @@
       <File FileName="Assets\Scripts\PolygonField.cs" Line="1" Column="1" />
       <File FileName="Assets\Vuforia\Scripts\DefaultInitializationErrorHandler.cs" Line="1" Column="1" />
       <File FileName="Assets\Vuforia\Scripts\DefaultTrackableEventHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\OriginOriented.cs" Line="106" Column="78" />
+      <File FileName="Assets\Scripts\OriginOriented.cs" Line="189" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
