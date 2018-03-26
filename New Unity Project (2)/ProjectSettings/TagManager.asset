@@ -7,7 +7,6 @@ TagManager:
   - Rectangle
   - Rombus
   - Circle
-  - Cube
   layers:
   - Default
   - TransparentFX

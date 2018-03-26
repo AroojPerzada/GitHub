@@ -10,8 +10,8 @@ public class PolygonField : MonoBehaviour {
 	public Text[] go_text_distance;
 	public Text perimeter_text;
 	public Text area_text;
-	public Text type_text;
-	public Text midDistance;
+	public Text zombie_text; 
+
 	public GameObject OriginPlaceHolder;
 
 	private Vector2[] go_points;
@@ -38,7 +38,7 @@ public class PolygonField : MonoBehaviour {
 		// Get GameObject 1 cordinates
 		// Loop all points
 		//for (int i = 0; i < go_points.Length; i++) {
-			midDistance.text = "Distance: " + go_points_text_a [0];
+		//	midDistance.text = "Distance: " + go_points_text_a [0];
 		//	Debug.Log ("Go Text Distance: " + go_text_distance[i]);
 		//}
 
@@ -54,16 +54,27 @@ public class PolygonField : MonoBehaviour {
 		for(int i = 0; i < go_raw.Length; i++){
 			if (go_raw [i] != null) {
 				if (go_raw [i].GetComponent<MeshRenderer> ().enabled) {
+					
+					//OriginPlaceHolder.GetComponent<MeshRenderer> ().enabled = true;
+
+					OriginPlaceHolder.SetActive (true);
 					go_text_angle [i].enabled = true;
 					go_text_distance [i].enabled = true;
 
 					vertices2DList.Add (new Vector2 (go_raw [i].transform.position.x, go_raw [i].transform.position.y));
+
 					textAList.Add (go_text_angle [i]);
 					textDList.Add (go_text_distance [i]);
+
 					oList.Add ( go_raw [i] );
+
+					Debug.Log ("Go raw: " + go_raw [i].transform.position);
+
 				} else {
+					OriginPlaceHolder.SetActive (false);
 					go_text_angle [i].enabled = false;
 					go_text_distance [i].enabled = false;
+					//OriginPlaceHolder.GetComponent<MeshRenderer> ().enabled = false;
 				}
 			}
 		}
@@ -124,7 +135,11 @@ public class PolygonField : MonoBehaviour {
 		int s = 0;
 		Vector2[] midPoints = new Vector2[2];
 
+		GameObject rect = GameObject.FindGameObjectWithTag ("Rectangle");
+		GameObject circ = GameObject.FindGameObjectWithTag ("Circle");
+
 		// Loop all points
+
 		for(int i = 0; i < go_points.Length; i++){
 //			For test neighbors
 //			int x0, x1, x2;
@@ -178,7 +193,49 @@ public class PolygonField : MonoBehaviour {
 
 			// Set distance position
 			Vector2 mp = midPoint (v1.x, v1.y, v2.x, v2.y);
+			Debug.Log ("Distance of Marker 1: " + v1.x + "," + v1.y);
+			Debug.Log ("Distance of Marker 2: " + v2.x + "," + v2.y);
+
+
+
 			go_points_text_d [i].transform.parent.position = new Vector3(mp.x, mp.y, go_points_text_d[i].transform.parent.position.z );
+
+			OriginPlaceHolder.SetActive (true);
+			if ((v1.x == rect.transform.position.x && v1.y == rect.transform.position.y) && (v2.x == rect.transform.position.x && v2.y == rect.transform.position.y)) {
+				Debug.Log ("Rectangle found");
+				OriginPlaceHolder.transform.position  = new Vector3(v1.x, v1.y, go_points_text_d[i].transform.parent.position.z );
+				perimeter_text.text = "Rect: " + v1;
+				zombie_text.text = "Z pos: " + OriginPlaceHolder.transform.position;
+				Debug.Log ("Zombie position when rect found: " + OriginPlaceHolder.transform.position);
+			} else if ((v1.x == circ.transform.position.x && v1.y == circ.transform.position.y) && (v2.x == circ.transform.position.x && v2.y == circ.transform.position.y)) {
+				Debug.Log ("Circle found");	
+			
+				OriginPlaceHolder.transform.position = new Vector3(v1.x + 3, v1.y, go_points_text_d[i].transform.parent.position.z );
+				Debug.Log ("Zombie position when circle found: " + OriginPlaceHolder.transform.position +" "+
+					v1);
+				area_text.text = "Circ: " + v1;
+				zombie_text.text = "Z pos: " + OriginPlaceHolder.transform.position;
+			} else if ((v1.x == circ.transform.position.x && v1.y == circ.transform.position.y) && (v2.x == rect.transform.position.x && v2.y == rect.transform.position.y)) {
+				Debug.Log ("Both found Circle and rect");	
+
+				perimeter_text.text = "Rect: "+ v2;
+				area_text.text = "Circ:" + v1;
+
+				OriginPlaceHolder.transform.position = new Vector3(v2.x, v2.y, go_points_text_d[i].transform.parent.position.z );
+				Debug.Log ("Zombie position: " + OriginPlaceHolder.transform.position);
+
+				zombie_text.text = "Z pos: " + OriginPlaceHolder.transform.position;
+			} else if ((v1.x == rect.transform.position.x && v1.y == rect.transform.position.y) && (v2.x == circ.transform.position.x && v2.y == circ.transform.position.y)) {
+				Debug.Log ("Both found rect and circle");	
+
+				perimeter_text.text = "Rect: "+ v1;
+				area_text.text = "Circ:" + v2;
+
+				OriginPlaceHolder.transform.position = new Vector3(v1.x, v1.y, go_points_text_d[i].transform.parent.position.z );
+				Debug.Log ("Zombie position: " + OriginPlaceHolder.transform.position);
+
+				zombie_text.text = "Z pos: " + OriginPlaceHolder.transform.position;
+			}
 
 			// Set distance angle
 			double az = angle_zero (v1.x, v1.y, v2.x, v2.y);
@@ -188,30 +245,12 @@ public class PolygonField : MonoBehaviour {
 			go_points_text_d [i].text = Math.Round (dv1, 2) + "";
 
 			midPoints [s] = mp;
-			Debug.Log ("MP value: " + mp+ "midPoint Array: "+midPoints[0].x + "midPoints[1]: "+midPoints[1]);
 			s = s + 1;
-			midDistance.text = "MidValue: "+go_points_text_d [i].transform.parent.position;
-			OriginPlaceHolder.transform.position = new Vector3(mp.x, mp.y, go_points_text_d[i].transform.parent.position.z );
+
+			//midDistance.text = "MidValue: "+go_points_text_d [i].transform.parent.position;
+			//OriginPlaceHolder.transform.position = new Vector3(mp.x, mp.y, go_points_text_d[i].transform.parent.position.z );
+			Debug.Log ("Zombie position: " + OriginPlaceHolder.transform.position);
 		}
-
-	//	double midValue = distance (midPoints [0].x, midPoints [0].y, midPoints [1].x, midPoints [1].y);
-	//	double midPointx = midPoints [0].x - midPoints[1].x;
-	//	double midPointy = midPoints [0].y - midPoints[1].y;
-
-	//	Debug.Log ("mid value: " + Math.Round(midValue,2));
-	//	midDistance.text = "MidPoint: " + Math.Round (midPoints[0].x, 2);
-
-		// Set perimeter
-		perimeter_text.text = "Perimeter: "+ Math.Round (midPoints[0].y, 2);
-
-		// Set area
-		//area_text.text = "Area: "+ Math.Round ( Math.Abs(area / 2), 2);
-		area_text.text = "Area:" + Math.Round(midPoints[1].x, 2);
-
-		// Set type
-		//type_text.text = "Type: "+ shapeType(n);
-		type_text.text = "Type: "+ Math.Round(midPoints[1].y, 2);
-
 	}
 
 	// Distance between two points (Pitagor theory)
@@ -254,30 +293,5 @@ public class PolygonField : MonoBehaviour {
 		double yDiff = y2 - y1;
 		double d = Math.Atan2(yDiff, xDiff) * (180 / Math.PI);
 		return d;
-	}
-
-	// Write shape type name
-	private string shapeType(int points){
-		string r = "None";
-
-		switch (points) {
-			case 1:	
-				r = "Dot";
-			break;
-			case 2:
-				r = "Straight";
-			break;
-			case 3:
-				r = "Triangle";
-			break;
-			case 4:
-				r = "Quadrangle";
-			break;
-			case 5:
-				r = "Pentagon";
-			break;
-		}
-
-		return r;
 	}
 }

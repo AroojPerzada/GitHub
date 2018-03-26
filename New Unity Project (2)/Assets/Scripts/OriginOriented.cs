@@ -10,6 +10,7 @@ using UnityEngine;
 using Vuforia;
 using System.Collections.Generic;
 using UnityEngine.UI;
+
 /// <summary>
 ///     A custom handler that implements the ITrackableEventHandler interface.
 /// </summary>
@@ -20,9 +21,10 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 	protected TrackableBehaviour mTrackableBehaviour;
 	public GameObject cube;
 	private IEnumerable<TrackableBehaviour> activeTrackables;
-	private int Count;
-	public bool rec;
-	public bool romb;
+	private bool ifTracked = false;
+
+	//For canvas
+	public Text rect_distance;
 
 	#endregion // PRIVATE_MEMBER_VARIABLES
 
@@ -30,9 +32,6 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 
 	protected virtual void Start()
 	{
-		rec = false;
-		romb = false;
-		Count = 20;
 		mTrackableBehaviour = GetComponent<TrackableBehaviour>();
 		if (mTrackableBehaviour)
 			mTrackableBehaviour.RegisterTrackableEventHandler(this);
@@ -46,7 +45,6 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 	///     Implementation of the ITrackableEventHandler function called when the
 	///     tracking state changes.
 	/// </summary>
-
 	public void OnTrackableStateChanged(
 		TrackableBehaviour.Status previousStatus,
 		TrackableBehaviour.Status newStatus)
@@ -56,133 +54,62 @@ public class OriginOriented : MonoBehaviour, ITrackableEventHandler
 			newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
 		{
 			Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " found");
-			if (mTrackableBehaviour.TrackableName == "Rectangle") {
-				rec = true;
-				romb = false;
-			} else if(mTrackableBehaviour.TrackableName == "Circle") {
-				romb = true;
-				if (rec == true) {
-					romb = false;
-				}
-			}
-			OnTrackingFound();
+			ifTracked = true;
+		//	OnTrackingFound();
 		}
 		else if (previousStatus == TrackableBehaviour.Status.TRACKED &&
 			newStatus == TrackableBehaviour.Status.NOT_FOUND)
 		{
 			Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " lost");
-			if (mTrackableBehaviour.TrackableName == "Rectangle") {
-				rec = false;
-			}
-			if (mTrackableBehaviour.TrackableName == "Circle") {
-				romb = false;
-			}
-			OnTrackingLost();
+			ifTracked = false;
+		//	OnTrackingLost();
 		}
 		else
 		{
+			ifTracked = false;
 			// For combo of previousStatus=UNKNOWN + newStatus=UNKNOWN|NOT_FOUND
 			// Vuforia is starting, but tracking has not been lost or found yet
 			// Call OnTrackingLost() to hide the augmentations
-			OnTrackingLost();
+		//	OnTrackingLost();
 		}
-		//Update ();
+	//	Update ();
 	}
 
 	#endregion // PUBLIC_METHODS
 
 	#region PRIVATE_METHODS
-
-	protected virtual void OnTrackingFound()
-	{
-
-
-		GameObject rectangle = GameObject.FindGameObjectWithTag ("Rectangle");
-		GameObject rombus = GameObject.FindGameObjectWithTag ("Circle");
-		//	GameObject circle = GameObject.FindGameObjectWithTag ("Circle");
-
-		if (mTrackableBehaviour.TrackableName == "Rectangle" && rec == true) {
-			cube.transform.position = new Vector3 (rectangle.transform.position.x, rectangle.transform.position.y, rectangle.transform.position.z);
-		} else if (mTrackableBehaviour.TrackableName == "Circle" && romb == true) {
-			cube.SetActive (true);
-			cube.transform.position = new Vector3 (rombus.transform.position.x + 5, rombus.transform.position.y, rombus.transform.position.z);
-		} else {
-		}
-
-
-
-		//GameObject rombus = GameObject.FindGameObjectWithTag ("Rombus");
-		//Debug.Log (rombus);
-		//cube.transform.position = new Vector3 (rombus.transform.position.x + 5, rombus.transform.position.y, rombus.transform.position.z);
-		/*var rendererComponents = GetComponentsInChildren<Renderer>(true);
-		/*var colliderComponents = GetComponentsInChildren<Collider>(true);
-		var canvasComponents = GetComponentsInChildren<Canvas>(true);
-
-		Vector3 temp = new Vector3 ();
-
-		// Enable rendering:
-		foreach (var component in rendererComponents)
-			component.enabled = true;
-
-		// Enable colliders:
-		foreach (var component in colliderComponents)
-			component.enabled = true;
-
-		// Enable canvas':
-		foreach (var component in canvasComponents)
-			component.enabled = true;
-*/
-	}
-
 	protected void Update() {
-
-
-		/*Debug.Log ("Start of Update Function");
 		StateManager sm = TrackerManager.Instance.GetStateManager ();
 		activeTrackables = sm.GetActiveTrackableBehaviours ();
-		Debug.Log ("List of trackables currently active tracked");
-		foreach (TrackableBehaviour tb in activeTrackables) {
-			Debug.Log ("Trackable: " + tb.TrackableName);*/
-		
-		if (Count >= 0) {
-			Count = Count - 1;
-			if (Count == 0) {
-				Count = 20;
-				OnTrackingFound ();
-			}
+
+	Debug.Log ("List of trackables currently active tracked");
+	ifTracked = false;
+	foreach (TrackableBehaviour tb in activeTrackables) {
+		Debug.Log ("Trackable: " + tb.TrackableName);
+		ifTracked = true;
+
+		if (tb.TrackableName == "Rectangle") {
+			cube.SetActive (true);	
+			cube.transform.position = tb.transform.position;
+				rect_distance.text = "Rectangle: " + tb.transform.position;
+			Debug.Log ("Rectangle position: " + tb.transform.position + " " + cube.transform.position);	
+		} else if (tb.TrackableName == "Circle") {
+			cube.SetActive (true);
+			cube.transform.position = new Vector3 (GameObject.FindGameObjectWithTag ("Circle").transform.position.x + 3,
+				GameObject.FindGameObjectWithTag ("Circle").transform.position.y,
+				GameObject.FindGameObjectWithTag ("Circle").transform.position.z);
+			Debug.Log ("Circle position: " + tb.transform.position + " " + cube.transform.position);
+				rect_distance.text = "Circle: "+tb.transform.position;
+		} else if (tb.TrackableName == "Rectangle" && tb.TrackableName == "Circle") {
+			cube.SetActive (true);	
+			cube.transform.position = GameObject.FindGameObjectWithTag ("Rectangle").transform.position;
+			Debug.Log ("Rectangle position: " + tb.transform.position + " " + cube.transform.position);	
 		}
 
-	}
-
-
-	protected  void OnTrackingLost()
-	{
-		//Debug.Log ("Tracking lost of " + mTrackableBehaviour.TrackableName);
-
-		var rendererComponents = GetComponentsInChildren<Renderer>(true);
-		var colliderComponents = GetComponentsInChildren<Collider>(true);
-		var canvasComponents = GetComponentsInChildren<Canvas>(true);
-
-		// Disable rendering:
-		foreach (var component in rendererComponents)
-			component.enabled = false;
-
-		// Disable colliders:
-		foreach (var component in colliderComponents)
-			component.enabled = false;
-
-		// Disable canvas':
-		foreach (var component in canvasComponents)
-			component.enabled = false;
-
-		if (mTrackableBehaviour.TrackableName == "Circle") {
-			romb = false;
-		}
-		if (mTrackableBehaviour.TrackableName == "Rectangle") {
-			rec = false;
-		}
+	} 
+	if (!ifTracked) {
 		cube.SetActive (false);
 	}
-
-	#endregion // PRIVATE_METHODS
+	}
+#endregion // PRIVATE_METHODS
 }
